@@ -1,0 +1,55 @@
+/*
+ * for ci
+ */
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+
+check.dependsOn 'checkstyle', 'findbugs'
+
+task checkstyle(type: Checkstyle) {
+    def conf
+    if (project.hasProperty('checkStyleConfigFile')) {
+        conf = file(checkStyleConfigFile)
+    } else {
+        conf = File.createTempFile("checkstyle", "")
+        new URL('https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/master/config/checkstyle/checkstyle.xml')
+                .withInputStream{ i -> conf.withOutputStream{ it << i }}
+    }
+    configFile conf
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    classpath = files()
+    ignoreFailures = true
+}
+
+task findbugs(type: FindBugs, dependsOn: assembleDebug) {
+    ignoreFailures = true
+    effort = "max"
+    reportLevel = "high"
+
+    def conf
+    if (project.hasProperty('findBugsExcludeFilter')) {
+        conf = file(findBugsExcludeFilter)
+    } else {
+        conf = File.createTempFile("findbugs", "")
+        new URL('https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/master/config/findbugs/findbugs-filter.xml')
+                .withInputStream{ i -> conf.withOutputStream{ it << i }}
+    }
+    excludeFilter = conf
+    classes = files("$project.buildDir/intermediates/classes/")
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml {
+            destination "$project.buildDir/reports/findbugs/findbugs.xml"
+            xml.withMessages true
+        }
+    }
+
+    classpath = files()
+}
