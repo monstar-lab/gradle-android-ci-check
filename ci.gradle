@@ -6,13 +6,15 @@ apply plugin: 'findbugs'
 
 check.dependsOn 'checkstyle', 'findbugs'
 
+def CI_VERSION = '1.0.0'
+
 task checkstyle(type: Checkstyle) {
     def conf
     if (project.hasProperty('checkStyleConfigFile')) {
         conf = file(checkStyleConfigFile)
     } else {
         conf = File.createTempFile("checkstyle", "")
-        new URL('https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/master/config/checkstyle/checkstyle.xml')
+        new URL("https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/$CI_VERSION/config/checkstyle/checkstyle.xml")
                 .withInputStream{ i -> conf.withOutputStream{ it << i }}
     }
     configFile conf
@@ -34,7 +36,7 @@ task findbugs(type: FindBugs, dependsOn: assembleDebug) {
         conf = file(findBugsExcludeFilter)
     } else {
         conf = File.createTempFile("findbugs", "")
-        new URL('https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/master/config/findbugs/findbugs-filter.xml')
+        new URL("https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/$CI_VERSION/config/findbugs/findbugs-filter.xml")
                 .withInputStream{ i -> conf.withOutputStream{ it << i }}
     }
     excludeFilter = conf
