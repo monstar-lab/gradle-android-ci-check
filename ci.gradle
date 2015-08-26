@@ -3,9 +3,11 @@
  */
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
+apply plugin: 'pmd'
 
-check.dependsOn 'checkstyle', 'findbugs'
+check.dependsOn 'checkstyle', 'findbugs', 'pmd'
 
+def GIT_USER = 'monstar-lab'
 def CI_VERSION = '1.0.0'
 
 task checkstyle(type: Checkstyle) {
@@ -14,7 +16,7 @@ task checkstyle(type: Checkstyle) {
         conf = file(checkStyleConfigFile)
     } else {
         conf = File.createTempFile("checkstyle", "")
-        new URL("https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/$CI_VERSION/config/checkstyle/checkstyle.xml")
+        new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/checkstyle/checkstyle.xml")
                 .withInputStream{ i -> conf.withOutputStream{ it << i }}
     }
     configFile conf
@@ -36,7 +38,7 @@ task findbugs(type: FindBugs, dependsOn: assembleDebug) {
         conf = file(findBugsExcludeFilter)
     } else {
         conf = File.createTempFile("findbugs", "")
-        new URL("https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/$CI_VERSION/config/findbugs/findbugs-filter.xml")
+        new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/findbugs/findbugs-filter.xml")
                 .withInputStream{ i -> conf.withOutputStream{ it << i }}
     }
     excludeFilter = conf
@@ -54,4 +56,34 @@ task findbugs(type: FindBugs, dependsOn: assembleDebug) {
     }
 
     classpath = files()
+}
+
+task pmd(type: Pmd) {
+    ignoreFailures = true
+
+    def conf
+    if (project.hasProperty('pmdRuleSetFiles')) {
+        conf = file(pmdRuleSetFiles)
+    } else {
+        conf = File.createTempFile("pmd", "")
+        new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/pmd/pmd-ruleset.xml")
+                .withInputStream{ i -> conf.withOutputStream{ it << i }}
+    }
+    ruleSetFiles = conf
+    ruleSets = []
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        xml {
+            destination "$project.buildDir/reports/pmd/pmd.xml"
+        }
+        html {
+            destination "$project.buildDir/reports/pmd/pmd.html"
+        }
+    }
 }
