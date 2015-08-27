@@ -69,7 +69,7 @@ task pmd(type: Pmd) {
         new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/pmd/pmd-ruleset.xml")
                 .withInputStream{ i -> conf.withOutputStream{ it << i }}
     }
-    ruleSetFiles = conf
+    ruleSetFiles = files(conf)
     ruleSets = []
 
     source 'src'
