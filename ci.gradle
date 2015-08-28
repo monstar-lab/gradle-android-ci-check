@@ -89,7 +89,7 @@ task pmd(type: Pmd) {
 }
 
 task cpd << {
-    File outDir = new File('build/reports/pmd/')
+    File outDir = new File("$project.buildDir/reports/pmd/")
     outDir.mkdirs()
     ant.taskdef(name: 'cpd',
             classname: 'net.sourceforge.pmd.cpd.CPDTask',
