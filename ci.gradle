@@ -5,10 +5,10 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
-check.dependsOn 'checkstyle', 'findbugs', 'pmd'
+check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'cpd'
 
 def GIT_USER = 'monstar-lab'
-def CI_VERSION = '1.1.0'
+def CI_VERSION = '1.2.0'
 
 task checkstyle(type: Checkstyle) {
     def conf
@@ -84,6 +84,21 @@ task pmd(type: Pmd) {
         }
         html {
             destination "$project.buildDir/reports/pmd/pmd.html"
+        }
+    }
+}
+
+task cpd << {
+    File outDir = new File('build/reports/pmd/')
+    outDir.mkdirs()
+    ant.taskdef(name: 'cpd',
+            classname: 'net.sourceforge.pmd.cpd.CPDTask',
+            classpath: configurations.pmd.asPath)
+    ant.cpd(minimumTokenCount: '100',
+            format: 'xml',
+            outputFile: new File(outDir , 'cpd.xml')) {
+        fileset(dir: "src/main/java") {
+            include(name: '**/*.java')
         }
     }
 }
