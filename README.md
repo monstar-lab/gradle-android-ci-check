@@ -14,7 +14,7 @@ apply from: "https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-che
 
 このリポジトリに格納されている`checkstyle.xml`や`findbugs-filter.xml`をダウンロードし、修正します。
 
-プロジェクト内に格納し、モジュールの`build.gradle`にさらに追記します。
+プロジェクト内に格納し、`gradle.properties`に下記のように追記します。
 
 ```
 checkStyleConfigFile=../config/quality/checkstyle/checkstyle.xml
