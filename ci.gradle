@@ -8,7 +8,7 @@ apply plugin: 'pmd'
 check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'cpd'
 
 def GIT_USER = 'monstar-lab'
-def CI_VERSION = '1.1.0'
+def CI_VERSION = '1.2.0'
 
 task checkstyle(type: Checkstyle) {
     def conf
