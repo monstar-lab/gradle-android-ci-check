@@ -1,104 +1,24 @@
-/*
- * for ci
- */
-apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
-apply plugin: 'pmd'
 
-check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'cpd'
+def GIT_USER = 'tientun'
+def CI_VERSION = 'master'
 
-def GIT_USER = 'monstar-lab'
-def CI_VERSION = '1.3.0'
-
-task checkstyle(type: Checkstyle) {
-    def conf
-    if (project.hasProperty('checkStyleConfigFile')) {
-        conf = file(checkStyleConfigFile)
-    } else {
-        conf = File.createTempFile("checkstyle", "")
-        new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/checkstyle/checkstyle.xml")
-                .withInputStream{ i -> conf.withOutputStream{ it << i }}
-    }
-    configFile conf
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    classpath = files()
-    ignoreFailures = true
+if (!project.hasProperty('gitUser')) {
+    ext.gitUser = GIT_USER
 }
 
-task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
-    ignoreFailures = true
-    effort = "max"
-    reportLevel = "high"
-
-    def conf
-    if (project.hasProperty('findBugsExcludeFilter')) {
-        conf = file(findBugsExcludeFilter)
-    } else {
-        conf = File.createTempFile("findbugs", "")
-        new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/findbugs/findbugs-filter.xml")
-                .withInputStream{ i -> conf.withOutputStream{ it << i }}
-    }
-    excludeFilter = conf
-    classes = files("$project.buildDir/intermediates/classes/")
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml {
-            destination "$project.buildDir/reports/findbugs/findbugs.xml"
-            xml.withMessages true
-        }
-    }
-
-    classpath = files()
+if (!project.hasProperty('ciVersion')) {
+    ext.ciVersion = CI_VERSION
 }
 
-task pmd(type: Pmd) {
-    ignoreFailures = true
-
-    def conf
-    if (project.hasProperty('pmdRuleSetFiles')) {
-        conf = file(pmdRuleSetFiles)
-    } else {
-        conf = File.createTempFile("pmd", "")
-        new URL("https://raw.githubusercontent.com/$GIT_USER/gradle-android-ci-check/$CI_VERSION/config/pmd/pmd-ruleset.xml")
-                .withInputStream{ i -> conf.withOutputStream{ it << i }}
-    }
-    ruleSetFiles = files(conf)
-    ruleSets = []
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml.enabled = true
-        html.enabled = true
-        xml {
-            destination "$project.buildDir/reports/pmd/pmd.xml"
-        }
-        html {
-            destination "$project.buildDir/reports/pmd/pmd.html"
-        }
-    }
+def languages = ["java"] //["java", "kotlin"]
+if (project.hasProperty('lang')) {
+    languages = lang.split(',')
 }
 
-task cpd << {
-    File outDir = new File("$project.buildDir/reports/pmd/")
-    outDir.mkdirs()
-    ant.taskdef(name: 'cpd',
-            classname: 'net.sourceforge.pmd.cpd.CPDTask',
-            classpath: configurations.pmd.asPath)
-    ant.cpd(minimumTokenCount: '100',
-            format: 'xml',
-            outputFile: new File(outDir , 'cpd.xml')) {
-        fileset(dir: "src/main/java") {
-            include(name: '**/*.java')
+languages.each {
+        if (it.equalsIgnoreCase("java")) {
+            apply from: "https://raw.githubusercontent.com/$gitUser/gradle-android-ci-check/$ciVersion/ci-java.gradle"
+        }else if(it.equalsIgnoreCase("kotlin")){
+            apply from: "https://raw.githubusercontent.com/$gitUser/gradle-android-ci-check/$ciVersion/ci-kotlin.gradle"
         }
     }
-}
