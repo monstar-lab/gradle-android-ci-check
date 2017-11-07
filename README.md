@@ -19,4 +19,8 @@ apply from: "https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-che
 ```
 checkStyleConfigFile=../config/quality/checkstyle/checkstyle.xml
 findBugsExcludeFilter=../config/quality/findbugs/findbugs-filter.xml
+detektConfigFile=../config/quality/findbugs/detekt.yml
+
+#Default java(java and/or kotlin)
+lang=kotlin,java
 ```

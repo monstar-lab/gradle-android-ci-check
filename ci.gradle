@@ -1,6 +1,6 @@
 
-def GIT_USER = 'tientun'
-def CI_VERSION = 'master'
+def GIT_USER = 'monstar-lab'
+def CI_VERSION = 'master' //Newest version
 
 if (!project.hasProperty('gitUser')) {
     ext.gitUser = GIT_USER
