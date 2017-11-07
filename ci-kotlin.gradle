@@ -1,0 +1,30 @@
+check.dependsOn 'detekt'
+configurations {
+    detekt
+}
+
+dependencies {
+    detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0.RC4-2'
+    detekt 'io.gitlab.arturbosch.detekt:detekt-formatting:1.0.0.RC4-2'
+}
+
+task detekt(type: JavaExec) {
+    def conf
+    println gitUser
+    if (project.hasProperty('detektConfigFile')) {
+        conf = file(detektConfigFile)
+    } else {
+        conf = File.createTempFile("detekt", ".yml")
+        new URL("https://raw.githubusercontent.com/$gitUser/gradle-android-ci-check/$ciVersion/config/detekt/detekt.yml")
+                .withInputStream{ i -> conf.withOutputStream{ it << i }}
+    }
+
+    main = "io.gitlab.arturbosch.detekt.cli.Main"
+    classpath = configurations.detekt
+    def input = "$rootDir"
+    def config = conf
+    def output = "$projectDir/build/reports/detekt/"
+    def filters = "(?i).*src/.*test/.*"
+    def params = ['-i', input, '-c', config, '-f', filters, '-o', output]
+    args(params)
+}
