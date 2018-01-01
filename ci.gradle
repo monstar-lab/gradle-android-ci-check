@@ -50,7 +50,7 @@ task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
 
     reports {
         xml {
-            destination "$project.buildDir/reports/findbugs/findbugs.xml"
+            destination new File("$project.buildDir/reports/findbugs/findbugs.xml")
             xml.withMessages true
         }
     }
@@ -80,15 +80,16 @@ task pmd(type: Pmd) {
         xml.enabled = true
         html.enabled = true
         xml {
-            destination "$project.buildDir/reports/pmd/pmd.xml"
+            destination new File("$project.buildDir/reports/pmd/pmd.xml")
         }
         html {
-            destination "$project.buildDir/reports/pmd/pmd.html"
+            destination new File("$project.buildDir/reports/pmd/pmd.html")
         }
     }
 }
 
-task cpd << {
+task 'cpd'
+cpd.doLast {
     File outDir = new File("$project.buildDir/reports/pmd/")
     outDir.mkdirs()
     ant.taskdef(name: 'cpd',
