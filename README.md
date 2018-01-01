@@ -5,7 +5,7 @@
 モジュールの`build.gradle`に下記を追加します。
 
 ```groovy
-apply from: "https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/1.3.1/ci.gradle"
+apply from: "https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/1.3.2/ci.gradle"
 ```
 
 ## 拡張性
